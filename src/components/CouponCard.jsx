@@ -1,4 +1,10 @@
-import {View, Text, TouchableOpacity, ActivityIndicator, Alert} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import {useState} from 'react';
 import React from 'react';
 import useStore from '../../store';
@@ -23,8 +29,8 @@ const CouponCard = ({coupon}) => {
   };
 
   return (
-    <View className="bg-white p-6 rounded-xl shadow-lg mb-6 border border-gray-200">
-      <Text className="text-xl font-bold text-gray-800 tracking-wide">
+    <View className="bg-white p-6  dark:bg-dark-card  rounded-xl shadow-lg mb-6 border border-gray-200">
+      <Text className="text-xl font-bold text-gray-800 dark:text-white tracking-wide">
         🎟️ {coupon.code}
       </Text>
       <Text className="mt-2 text-lg text-gray-600">

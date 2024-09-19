@@ -9,15 +9,15 @@ import {
   ActivityIndicator,
   useColorScheme,
 } from 'react-native';
-import {Picker} from '@react-native-picker/picker'; // Import Picker
+import {Picker} from '@react-native-picker/picker';
 import useStore from '../../store';
-
+import CouponCard from '../components/CouponCard';
 const Coupons = () => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
-  const {coupons, deleteCoupon, addCoupon} = useStore();
+  const {coupons, addCoupon} = useStore();
   const [couponCode, setCouponCode] = useState('');
-  const [discountType, setDiscountType] = useState('percent'); // Initialize with default value
+  const [discountType, setDiscountType] = useState('percent');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(null);
@@ -58,41 +58,40 @@ const Coupons = () => {
         onChangeText={setCouponCode}
         placeholder="Enter Coupon Code"
         placeholderTextColor="#a0a0a0"
-        className="bg-gray-50 border mb-4 border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full dark:bg-dark-card dark:border-dark-border"
+        className="bg-gray-50 border mb-4 border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full dark:bg-dark-card dark:border-dark-border dark:text-white"
       />
 
-     <View className="w-full flex-row flex justify-between items-center">
-     <TextInput
-        value={amount}
-        onChangeText={setAmount}
-        placeholder="Enter Discount Amount"
-        keyboardType="numeric"
-        placeholderTextColor="#a0a0a0"
-        className="bg-gray-50 border mb-4 border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-[55%] dark:bg-dark-card dark:border-dark-border"
-      />
-      <View
-        className={`border-2 w-40 rounded-2xl overflow-hidden dark:border-dark-border' : 'border-gray-200'}`}>
-        <Picker
-          selectedValue={discountType}
-          onValueChange={itemValue => setDiscountType(itemValue)}
-          dropdownIconColor={isDarkMode ? 'white' : 'black'}
-          dropdownIconRippleColor={
-            isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'
-          }
-          style={{
-            backgroundColor: isDarkMode ? '#3d3d3d' : 'white',
-            height: 50,
-            width: 160,
-            color: isDarkMode ? 'white' : 'black',
-          }}>
-          <Picker.Item label="Percentage" value="percent" />
-          <Picker.Item label="Fixed Cart Discount" value="fixed_cart" />
-          <Picker.Item label="Fixed Product Discount" value="fixed_product" />
-          <Picker.Item label="Free Shipping" value="free_shipping" />
-        </Picker>
+      <View className="w-full flex-row flex justify-between items-center">
+        <TextInput
+          value={amount}
+          onChangeText={setAmount}
+          placeholder="Enter Discount Amount"
+          keyboardType="numeric"
+          placeholderTextColor="#a0a0a0"
+          className="bg-gray-50 border  border-gray-300 text-gray-900 text-sm rounded-lg p-3 w-max dark:bg-dark-card dark:border-dark-border dark:text-white"
+        />
+        <View
+          className={`border-2 w-44 rounded-2xl overflow-hidden dark:border-dark-border' : 'border-gray-200'}`}>
+          <Picker
+            selectedValue={discountType}
+            onValueChange={itemValue => setDiscountType(itemValue)}
+            dropdownIconColor={isDarkMode ? 'white' : 'black'}
+            dropdownIconRippleColor={
+              isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'
+            }
+            style={{
+              backgroundColor: isDarkMode ? '#3d3d3d' : 'white',
+              height: 50,
+              width: 'max-content',
+              color: isDarkMode ? 'white' : 'black',
+            }}>
+            <Picker.Item label="Percentage" value="percent" />
+            <Picker.Item label="Fixed Cart Discount" value="fixed_cart" />
+            <Picker.Item label="Fixed Product Discount" value="fixed_product" />
+            <Picker.Item label="Free Shipping" value="free_shipping" />
+          </Picker>
+        </View>
       </View>
-
-     </View>
       <TouchableOpacity
         disabled={loading}
         onPress={handleAddCoupon}
@@ -108,36 +107,7 @@ const Coupons = () => {
 
       <ScrollView className="mt-4" showsVerticalScrollIndicator={false}>
         {coupons.map(coupon => (
-          <View
-            key={coupon.id}
-            className="bg-white p-6 rounded-xl shadow-lg mb-6 border border-gray-200 dark:bg-dark-card dark:border-dark-border">
-            <Text className="text-xl font-bold text-gray-800 dark:text-dark-text tracking-wide">
-              🎟️ {coupon.code}
-            </Text>
-            <Text className="mt-2 text-lg text-gray-600 dark:text-dark-text">
-              Discount: <Text className="text-green-500">{coupon.amount}%</Text>
-            </Text>
-            <Text className="mt-2 text-sm text-gray-500 dark:text-dark-text">
-              Created on: {new Date(coupon.date_created).toLocaleDateString()}
-            </Text>
-
-            <TouchableOpacity
-              onPress={async () => {
-                setDeleting(coupon.id);
-                await deleteCoupon(coupon.id);
-                setDeleting(null);
-              }}
-              className={`mt-4 p-3 rounded-full ${
-                deleting === coupon.id ? 'bg-gray-400' : 'bg-red-600'
-              } dark:${deleting === coupon.id ? 'bg-gray-500' : 'bg-red-700'}`}
-              disabled={deleting === coupon.id}>
-              {deleting === coupon.id ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text className="text-white text-center font-bold">Delete</Text>
-              )}
-            </TouchableOpacity>
-          </View>
+          <CouponCard coupon={coupon} key={coupon.id} />
         ))}
       </ScrollView>
     </View>

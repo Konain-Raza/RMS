@@ -1,5 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useState, useEffect} from 'react';
+import {Appearance} from 'react-native';
 import {View, Text, ScrollView, Image} from 'react-native';
 import axios from 'axios';
 import {Picker} from '@react-native-picker/picker';
@@ -11,6 +12,8 @@ const OrderDetails = ({route}) => {
     route?.params?.order?.status || '',
   );
   const navigation = useNavigation();
+  const colorScheme = Appearance.getColorScheme();
+
   useEffect(() => {
     route?.params?.order?.status ?? navigation.navigate('Home');
   });
@@ -55,33 +58,40 @@ const OrderDetails = ({route}) => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (order) {
       navigation.setOptions({
         title: `Order #${order.id}`,
-        headerStyle: {backgroundColor: '#f8f9fa'},
-        headerTitleStyle: {color: '#333', fontWeight: 'bold'},
+        headerStyle: {
+          backgroundColor: colorScheme === 'dark' ? '#1f2937' : '#f8f9fa',
+        },
+        headerTitleStyle: {
+          color: colorScheme === 'dark' ? '#f8f9fa' : '#333', 
+          fontWeight: 'bold',
+        },
       });
     }
-  }, [order, navigation]);
+  }, [order, navigation, colorScheme]);
 
   return (
-    <ScrollView className="bg-gray-100 p-4">
-      {/* Order Header */}
-      <View className="mb-4 bg-white p-6 rounded-xl shadow-lg">
-        <Text className="text-2xl font-semibold text-gray-900">
+    <ScrollView
+      className="bg-gray-100 p-4 dark:bg-dark-card"
+      showsVerticalScrollIndicator={false}>
+      <View className="mb-4 bg-white p-6 rounded-xl shadow-lg dark:bg-dark-card border-2 dark:border-dark-border">
+        <Text className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Order #{order?.id}
         </Text>
-        <Text className="text-sm text-gray-500 mt-1">
+        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Date: {new Date(order?.date_created).toLocaleDateString()}
         </Text>
 
-        <View className="border-gray-200 w-1/2 border-2 rounded-2xl overflow-hidden">
+        <View className="border-gray-200 w-1/2 border-2 rounded-2xl overflow-hidden dark:border-gray-700">
           <Picker
             selectedValue={selectedStatus}
             style={{
               backgroundColor: 'white',
-              height: 50, // Adjust height for better touch
+              height: 50,
               width: 'max-content',
               color: 'black',
             }}
@@ -91,7 +101,7 @@ const OrderDetails = ({route}) => {
               <Picker.Item
                 style={{
                   backgroundColor: 'white',
-                  height: 50, // Adjust height for better touch
+                  height: 50,
                   color: 'black',
                 }}
                 key={status}
@@ -103,85 +113,91 @@ const OrderDetails = ({route}) => {
         </View>
       </View>
 
-      {/* Customer Details */}
-      <View className="mb-4 bg-white p-6 rounded-xl shadow-lg flex-row">
+      <View className="mb-4 bg-white p-6 rounded-xl shadow-lg dark:bg-dark-card border-2 dark:border-dark-border  flex-row">
         <View>
-          <Text className="text-lg font-semibold text-gray-800">
+          <Text className="text-lg font-semibold text-gray-800 dark:text-gray-100">
             Customer Details
           </Text>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-gray-600 dark:text-gray-400">
             {order?.billing?.first_name} {order?.billing?.last_name}
           </Text>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-gray-600 dark:text-gray-400">
             Email: {order?.billing?.email}
           </Text>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-gray-600 dark:text-gray-400">
             Phone: {order?.billing?.phone}
           </Text>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-gray-600 dark:text-gray-400">
             Address: {order?.billing?.address_1}, {order?.billing?.city}
           </Text>
         </View>
       </View>
 
-      {/* Line Items */}
-      <View className="mb-4 bg-white p-6 rounded-xl shadow-2xl">
-        <Text className="text-lg font-semibold text-gray-800 mb-4">Items</Text>
+      <View className="mb-4 bg-white p-6 rounded-xl shadow-2xl dark:bg-dark-card border-2 dark:border-dark-border">
+        <Text className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+          Items
+        </Text>
         {order?.line_items?.map((item, index) => (
           <View
             key={index}
             className="flex-row items-center justify-between mb-3">
             <Image
-              source={{uri: item.image.src || 'https://via.placeholder.com/60'}} // Replace with actual product image URL
+              source={{uri: item.image.src || 'https://via.placeholder.com/60'}}
               className="w-12 h-12 rounded-md mr-3"
             />
             <View className="flex-1">
-              <Text className="text-sm text-gray-800 font-medium">
+              <Text className="text-sm text-gray-800 dark:text-gray-100 font-medium">
                 {item.name}
               </Text>
-              <Text className="text-sm text-gray-500">
+              <Text className="text-sm text-gray-500 dark:text-gray-400">
                 Quantity: {item.quantity}
               </Text>
             </View>
-            <Text className="text-sm text-gray-600 font-medium">
+            <Text className="text-sm text-gray-600 dark:text-gray-400 font-medium">
               ₨ {item.total}
             </Text>
           </View>
         ))}
       </View>
 
-      {/* Order Total */}
-      <View className="bg-white p-6 rounded-xl shadow-lg mb-16">
-        <Text className="text-lg font-semibold text-gray-800">
+      <View className="bg-white p-6 rounded-xl shadow-lg dark:bg-dark-card border-2 dark:border-dark-border mb-16">
+        <Text className="text-lg font-semibold text-gray-800 dark:text-gray-100">
           Order Summary
         </Text>
 
-        {/* Item Prices */}
         {order?.line_items?.map((item, index) => (
           <View
             key={index}
             className="flex-row justify-between items-center mt-1">
-            <Text className="text-sm text-gray-600">
+            <Text className="text-sm text-gray-600 dark:text-gray-400">
               {item.quantity} x {item.name}
             </Text>
-            <Text className="text-sm text-gray-600">₨ {item.total}</Text>
+            <Text className="text-sm text-gray-600 dark:text-gray-400">
+              ₨ {item.total}
+            </Text>
           </View>
         ))}
         <View className="flex-row justify-between items-center mt-1">
-          <Text className="text-sm text-gray-600">Shipping Charges</Text>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-gray-600 dark:text-gray-400">
+            Shipping Charges
+          </Text>
+          <Text className="text-sm text-gray-600 dark:text-gray-400">
             ₨ {order?.shipping_total || '0.00'}
           </Text>
         </View>
         <View className="flex-row justify-between items-center mt-1">
-          <Text className="text-sm text-gray-600">Payment Method: </Text>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-gray-600 dark:text-gray-400">
+            Payment Method:
+          </Text>
+          <Text className="text-sm text-gray-600 dark:text-gray-400">
             {order?.payment_method_title}
           </Text>
         </View>
         <View className="flex-row justify-between items-center mt-1">
-          <Text className="text-lg font-bold text-gray-600">Total: </Text>
-          <Text className="text-lg font-bold text-gray-600">
+          <Text className="text-lg font-bold text-gray-600 dark:text-gray-100">
+            Total:
+          </Text>
+          <Text className="text-lg font-bold text-gray-600 dark:text-gray-100">
             {order?.total}
           </Text>
         </View>
