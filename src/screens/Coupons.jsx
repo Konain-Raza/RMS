@@ -20,7 +20,6 @@ const Coupons = () => {
   const [discountType, setDiscountType] = useState('percent');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
-  const [deleting, setDeleting] = useState(null);
 
   const handleAddCoupon = async () => {
     if (!couponCode || !amount) {

@@ -63,11 +63,12 @@ const OrderDetails = ({route}) => {
     if (order) {
       navigation.setOptions({
         title: `Order #${order.id}`,
+
         headerStyle: {
-          backgroundColor: colorScheme === 'dark' ? '#1f2937' : '#f8f9fa',
+          backgroundColor: colorScheme === 'dark' ? '#00000' : '#00000',
         },
         headerTitleStyle: {
-          color: colorScheme === 'dark' ? '#f8f9fa' : '#333', 
+          color: colorScheme === 'dark' ? '#f8f9fa' : '#333',
           fontWeight: 'bold',
         },
       });
@@ -78,7 +79,7 @@ const OrderDetails = ({route}) => {
     <ScrollView
       className="bg-gray-100 p-4 dark:bg-dark-card"
       showsVerticalScrollIndicator={false}>
-      <View className="mb-4 bg-white p-6 rounded-xl shadow-lg dark:bg-dark-card border-2 dark:border-dark-border">
+      <View className="mb-4 bg-white p-6 rounded-xl shadow-lg dark:bg-dark-card border dark:border-dark-border">
         <Text className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Order #{order?.id}
         </Text>
@@ -86,23 +87,31 @@ const OrderDetails = ({route}) => {
           Date: {new Date(order?.date_created).toLocaleDateString()}
         </Text>
 
-        <View className="border-gray-200 w-1/2 border-2 rounded-2xl overflow-hidden dark:border-gray-700">
+        <View
+          className={`border rounded-xl overflow-hidden dark:border-dark-border' border-gray-400 mt-3`}>
           <Picker
             selectedValue={selectedStatus}
+            dropdownIconColor={colorScheme === 'dark' ? 'white' : 'black'}
+            dropdownIconRippleColor={
+              colorScheme === 'dark'
+                ? 'rgba(255, 255, 255, 0.2)'
+                : 'rgba(0, 0, 0, 0.2)'
+            }
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colorScheme === 'dark' ? '#3d3d3d' : 'white',
               height: 50,
               width: 'max-content',
-              color: 'black',
+              color: colorScheme === 'dark' ? 'white' : 'black',
             }}
             onValueChange={itemValue => handleStatusChange(itemValue)}
             enabled={!loading}>
             {statusOptions.map(status => (
               <Picker.Item
                 style={{
-                  backgroundColor: 'white',
+                  backgroundColor: colorScheme === 'dark' ? '#3d3d3d' : 'white',
                   height: 50,
-                  color: 'black',
+                  width: 160,
+                  color: colorScheme === 'dark' ? 'white' : 'black',
                 }}
                 key={status}
                 label={status.charAt(0).toUpperCase() + status.slice(1)}
@@ -113,7 +122,7 @@ const OrderDetails = ({route}) => {
         </View>
       </View>
 
-      <View className="mb-4 bg-white p-6 rounded-xl shadow-lg dark:bg-dark-card border-2 dark:border-dark-border  flex-row">
+      <View className="mb-4 bg-white p-6 rounded-xl shadow-lg dark:bg-dark-card border dark:border-dark-border  flex-row">
         <View>
           <Text className="text-lg font-semibold text-gray-800 dark:text-gray-100">
             Customer Details
@@ -133,7 +142,7 @@ const OrderDetails = ({route}) => {
         </View>
       </View>
 
-      <View className="mb-4 bg-white p-6 rounded-xl shadow-2xl dark:bg-dark-card border-2 dark:border-dark-border">
+      <View className="mb-4 bg-white p-6 rounded-xl shadow-2xl dark:bg-dark-card border dark:border-dark-border">
         <Text className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
           Items
         </Text>
@@ -160,7 +169,7 @@ const OrderDetails = ({route}) => {
         ))}
       </View>
 
-      <View className="bg-white p-6 rounded-xl shadow-lg dark:bg-dark-card border-2 dark:border-dark-border mb-16">
+      <View className="bg-white p-6 rounded-xl shadow-lg dark:bg-dark-card border dark:border-dark-border mb-16">
         <Text className="text-lg font-semibold text-gray-800 dark:text-gray-100">
           Order Summary
         </Text>

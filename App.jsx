@@ -6,14 +6,15 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Login from './src/screens/Login';
-import Home from './src/screens/Home';
+import Orders from './src/screens/Orders';
 import OrderDetails from './src/screens/OrderDetails';
 import Scanner from './src/screens/Scanner';
 import useStore from './store';
 import Coupons from './src/screens/Coupons';
 import Reservations from './src/screens/Reservations';
 import CustomDrawerContent from './src/components/DrawerHeader';
-import { DashboardIcon } from './src/assets/icons/icons';
+import Icon from 'react-native-remix-icon';
+import Dashboard from './src/screens/Dashboard';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -21,7 +22,14 @@ const Stack = createNativeStackNavigator();
 const App = () => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
-  const {setUser, orders, getCoupons, getOrders, getReservations} = useStore();
+  const {
+    setUser,
+    getCoupons,
+    getOrders,
+    getReservations,
+    getDashboardData,
+    user,
+  } = useStore();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -30,42 +38,73 @@ const App = () => {
       drawerContent={props => <CustomDrawerContent {...props} />}
       screenOptions={{
         drawerStyle: {
-          backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff', // Dark mode background color
+          backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff',
         },
-        drawerActiveTintColor: isDarkMode ? '#ffffff' : '#000000', // Active tint color
-        drawerInactiveTintColor: isDarkMode ? '#b3b3b3' : '#4f4f4f', // Inactive tint color
+        drawerActiveTintColor: isDarkMode ? '#ffffff' : '#000000',
+        drawerInactiveTintColor: isDarkMode ? '#b3b3b3' : '#4f4f4f',
         headerStyle: {
-          backgroundColor: isDarkMode ? '#1a1a1a' : '#f0f0f0', // Header background color
+          backgroundColor: isDarkMode ? '#1a1a1a' : '#f0f0f0',
         },
-        headerTintColor: isDarkMode ? '#ffffff' : '#000000', // Header text color
+        headerTintColor: isDarkMode ? '#ffffff' : '#000000',
         headerTitleStyle: {
           fontWeight: 'bold',
         },
       }}>
       <Drawer.Screen
-        name="Home"
-        // style={{backgroundColor:"red"}}
-        component={Home}
-        initialParams={{orders}}
-        // options={{
-        //   drawerIcon: ({color, size}) => (
-        //     <DashboardIcon color={color} size={size} /> // Use your custom DashboardIcon here
-        //   ),
-        // }}
+        name="Dashboard"
+        component={Dashboard}
+        options={{
+          drawerIcon: ({color, size}) => (
+            <Icon name="dashboard-line" size={size} color={color} />
+          ),
+        }}
       />
-      <Drawer.Screen name="Coupons" component={Coupons} />
-      <Drawer.Screen name="Reservations" component={Reservations} />
+      <Drawer.Screen
+        name="Orders"
+        component={Orders}
+        options={{
+          drawerIcon: ({color, size}) => (
+            <Icon name="restaurant-line" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Coupons"
+        component={Coupons}
+        options={{
+          drawerIcon: ({color, size}) => (
+            <Icon name="coupon-line" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Reservations"
+        component={Reservations}
+        options={{
+          drawerIcon: ({color, size}) => (
+            <Icon name="table-line" size={size} color={color} />
+          ),
+        }}
+      />
     </Drawer.Navigator>
   );
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
+        console.log('fetchOrders');
+
         await getOrders();
+        console.log('fetchCoupons');
+
         await getCoupons();
+        console.log('fetchDashboard');
+
+        await getDashboardData();
+    console.log('reserva');
+
         await getReservations();
       } catch (error) {
-        console.log('Error fetching data:', error);
         Alert.alert('Failed to Load Data', error.message);
       }
     };
@@ -78,8 +117,6 @@ const App = () => {
           setUser(parsedUser);
           await fetchOrders();
           setIsAuthenticated(true);
-        } else {
-          console.log('No user data found');
         }
       } catch (error) {
         console.error('Error during user check:', error);
@@ -93,7 +130,13 @@ const App = () => {
 
   if (isLoading) {
     return (
-      <View className="flex-1 dark:bg-dark items-center justify-center">
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
         <ActivityIndicator
           size="large"
           color={isDarkMode ? '#ffffff' : '#0000ff'}
@@ -104,10 +147,7 @@ const App = () => {
 
   return (
     <GestureHandlerRootView
-      style={{
-        flex: 1,
-        backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff', // Correct conditional background color
-      }}>
+      style={{flex: 1, backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff'}}>
       <NavigationContainer>
         <Stack.Navigator
           initialRouteName={isAuthenticated ? 'Drawer' : 'Login'}

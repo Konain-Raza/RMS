@@ -3,7 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, useColorScheme } from 'react-n
 import OrderCard from '../components/OrderCard';
 import useStore from '../../store';
 
-const Home = ({ route }) => {
+const Orders = ({ route }) => {
   const { getOrders, orders } = useStore();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -54,10 +54,8 @@ const Home = ({ route }) => {
   };
 
   return (
-    <View className={`flex-1 w-full px-5 mx-auto ${isDarkMode ? 'dark:bg-dark-bg' : 'bg-white'}`}>
-      <Text className={`text-2xl font-bold ${isDarkMode ? 'text-dark-text' : 'text-black'} p-3`}>
-        Orders:
-      </Text>
+    <View className='flex-1 w-full px-5 pt-5 mx-auto dark:dark:bg-dark-bg'>
+
       <FlatList
       showsVerticalScrollIndicator={false}
         data={orders}
@@ -73,4 +71,4 @@ const Home = ({ route }) => {
   );
 };
 
-export default Home;
+export default Orders;

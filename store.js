@@ -1,43 +1,97 @@
-import {create} from 'zustand';
+import { create } from 'zustand';
 import axios from 'axios';
-import {Alert} from 'react-native';
+import { Alert } from 'react-native';
 
 const useStore = create((set, get) => ({
   user: {},
   orders: [],
   coupons: [],
   reservations: [],
+  dashboardData: {
+    sales: 0,
+    topSellers: [],
+    ordersTotals: {},
+    productsTotals: {},
+  },
 
-  setUser: user => set({user}),
-  setOrders: orders => set({orders}),
-  setCoupons: coupons => set({coupons}),
+  setUser: user => set({ user }),
+  setOrders: orders => set({ orders }),
+  setCoupons: coupons => set({ coupons }),
 
-  getOrders: async (page=1 , perPage=10) => {
+  getDashboardData: async () => {
+    const { user } = get();
+    try {
+      const [
+        salesResponse,
+        topSellersResponse,
+        ordersTotalsResponse,
+        productsTotalsResponse,
+      ] = await Promise.all([
+        axios.get(`${user.baseURL}/wp-json/wc/v3/reports/sales`, {
+          params: {
+            consumer_key: user.consumerKey,
+            consumer_secret: user.consumerSecret,
+          },
+        }),
+        axios.get(`${user.baseURL}/wp-json/wc/v3/reports/top_sellers`, {
+          params: {
+            consumer_key: user.consumerKey,
+            consumer_secret: user.consumerSecret,
+          },
+        }),
+        axios.get(`${user.baseURL}/wp-json/wc/v3/reports/orders/totals`, {
+          params: {
+            consumer_key: user.consumerKey,
+            consumer_secret: user.consumerSecret,
+          },
+        }),
+        axios.get(`${user.baseURL}/wp-json/wc/v3/reports/products/totals`, {
+          params: {
+            consumer_key: user.consumerKey,
+            consumer_secret: user.consumerSecret,
+          },
+        }),
+      ]);
+
+      set({
+        dashboardData: {
+          sales: salesResponse.data.total_sales,
+          topSellers: topSellersResponse.data,
+          ordersTotals: ordersTotalsResponse.data,
+          productsTotals: productsTotalsResponse.data,
+        },
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error.message);
+    }
+  },
+
+  getOrders: async (page = 1, perPage = 10) => {
     const { user } = get();
     try {
       const response = await axios.get(`${user.baseURL}/wp-json/wc/v3/orders`, {
         params: {
           consumer_key: user.consumerKey,
           consumer_secret: user.consumerSecret,
-          page: page,
+          page,
           per_page: perPage,
         },
       });
       const currentOrders = get().orders;
       const newOrders = page === 1 ? response.data : [...currentOrders, ...response.data];
       set({ orders: newOrders });
+      console.log("order done")
     } catch (error) {
       console.error('Error fetching orders:', error.message);
     }
   },
-  
 
   updateOrderStatus: async (id, status) => {
-    const {user} = get();
+    const { user } = get();
     try {
       await axios.put(
         `${user.baseURL}/wp-json/wc/v3/orders/${id}`,
-        {status},
+        { status },
         {
           params: {
             consumer_key: user.consumerKey,
@@ -50,33 +104,27 @@ const useStore = create((set, get) => ({
       );
       console.log('Order status updated successfully.');
     } catch (error) {
-      console.error(
-        'Failed to update order status:',
-        error.response?.data || error.message,
-      );
+      console.error('Failed to update order status:', error.response?.data || error.message);
     }
   },
 
   getCoupons: async () => {
-    const {user} = get();
+    const { user } = get();
     try {
-      const response = await axios.get(
-        `${user.baseURL}/wp-json/wc/v3/coupons`,
-        {
-          params: {
-            consumer_key: user.consumerKey,
-            consumer_secret: user.consumerSecret,
-          },
+      const response = await axios.get(`${user.baseURL}/wp-json/wc/v3/coupons`, {
+        params: {
+          consumer_key: user.consumerKey,
+          consumer_secret: user.consumerSecret,
         },
-      );
-      set({coupons: response.data});
+      });
+      set({ coupons: response.data });
     } catch (error) {
       console.error('Error fetching coupons:', error.message);
     }
   },
 
   deleteCoupon: async id => {
-    const {user, getCoupons} = get();
+    const { user, getCoupons } = get();
     try {
       await axios.delete(`${user.baseURL}/wp-json/wc/v3/coupons/${id}`, {
         params: {
@@ -92,9 +140,9 @@ const useStore = create((set, get) => ({
   },
 
   addCoupon: async (couponCode, discountType, amount) => {
-    const {user, getCoupons} = get();
+    const { user, getCoupons } = get();
     try {
-      const newCoupon = {code: couponCode, discount_type: discountType, amount};
+      const newCoupon = { code: couponCode, discount_type: discountType, amount };
       await axios.post(`${user.baseURL}/wp-json/wc/v3/coupons`, newCoupon, {
         params: {
           consumer_key: user.consumerKey,
@@ -108,18 +156,15 @@ const useStore = create((set, get) => ({
   },
 
   getReservations: async () => {
-    const {user} = get();
+    const { user } = get();
     try {
-      const response = await axios.get(
-        `${user.baseURL}/wp-json/wc-rms/v1/reservation`,
-        {
-          auth: {
-            username: user.username,
-            password: user.password,
-          },
+      const response = await axios.get(`${user.baseURL}/wp-json/wc-rms/v1/reservation`, {
+        auth: {
+          username: user.username,
+          password: user.password,
         },
-      );
-      set({reservations: response.data});
+      });
+      set({ reservations: response.data });
       console.log('Reservations fetched');
     } catch (error) {
       console.error('Error fetching reservations:', error.message);
@@ -127,14 +172,12 @@ const useStore = create((set, get) => ({
   },
 
   updateReservation: async (id, newStatus) => {
-    const {user} = get();
+    const { user } = get();
     try {
-      console.log(
-        `Updating reservation with ID: ${id} to status: ${newStatus}`,
-      );
+      console.log(`Updating reservation with ID: ${id} to status: ${newStatus}`);
       const response = await axios.patch(
         `${user.baseURL}/wp-json/wc-rms/v1/reservation/${id}`,
-        {reservation_status: newStatus},
+        { reservation_status: newStatus },
         {
           auth: {
             username: user.username,
@@ -142,13 +185,10 @@ const useStore = create((set, get) => ({
           },
         },
       );
-      set({reservations: response.data});
+      set({ reservations: response.data });
       console.log('Reservation updated successfully');
     } catch (error) {
-      console.error(
-        'Error updating reservation:',
-        error.response?.data || error.message,
-      );
+      console.error('Error updating reservation:', error.response?.data || error.message);
       if (error.response) {
         console.error('Status:', error.response.status);
         console.error('Headers:', error.response.headers);
