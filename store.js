@@ -20,6 +20,8 @@ const useStore = create((set, get) => ({
 
   getDashboardData: async () => {
     const { user } = get();
+    console.log("getting Dashboard")
+
     try {
       const [
         salesResponse,
@@ -55,10 +57,10 @@ const useStore = create((set, get) => ({
 
       set({
         dashboardData: {
-          sales: salesResponse.data.total_sales,
-          topSellers: topSellersResponse.data,
-          ordersTotals: ordersTotalsResponse.data,
-          productsTotals: productsTotalsResponse.data,
+          sales: salesResponse.data?.total_sales ?? 0, // Fallback to 0 if undefined
+          topSellers: topSellersResponse.data ?? [], // Fallback to empty array if undefined
+          ordersTotals: ordersTotalsResponse.data ?? {}, // Fallback to empty object if undefined
+          productsTotals: productsTotalsResponse.data ?? {}, // Fallback to empty object if undefined
         },
       });
     } catch (error) {
@@ -68,6 +70,7 @@ const useStore = create((set, get) => ({
 
   getOrders: async (page = 1, perPage = 10) => {
     const { user } = get();
+    console.log("getting Orders")
     try {
       const response = await axios.get(`${user.baseURL}/wp-json/wc/v3/orders`, {
         params: {

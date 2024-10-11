@@ -12,12 +12,18 @@ const Orders = ({ route }) => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
 
+  // Fetch orders when the page changes
+  // useEffect(() => {
+  //   handleGetOrders(page); // Fetch orders whenever `page` changes
+  // }, [page]);
+
   const handleGetOrders = async (page = 1, perPage = 10, isLoadMore = false) => {
     if (isLoadMore) {
       setLoadingMore(true);
     } else {
       setLoading(true);
     }
+
     try {
       await getOrders(page, perPage); 
     } catch (error) {
@@ -34,30 +40,26 @@ const Orders = ({ route }) => {
     }
   };
 
-  useEffect(() => {
-    handleGetOrders(); 
-  }, []);
-
   const handleLoadMore = () => {
     if (!loadingMore) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      handleGetOrders(nextPage, 10, true); 
+      setPage(prevPage => prevPage + 1); // Increment the page number to load more
     }
   };
 
   const handleRefresh = async () => {
-    setPage(1); 
+    setPage(1); // Reset the page to 1 on refresh
     setRefreshing(true);
-    await handleGetOrders(1, 10); 
+    await handleGetOrders(1, 10); // Fetch the first page on refresh
     setRefreshing(false);
   };
 
   return (
-    <View className='flex-1 w-full px-5 pt-5 mx-auto dark:dark:bg-dark-bg'>
-
+    <View className={`flex-1 w-full px-5 mx-auto ${isDarkMode ? 'dark:bg-dark-bg' : 'bg-white'}`}>
+      <Text className={`text-2xl font-bold ${isDarkMode ? 'text-dark-text' : 'text-black'} p-3`}>
+        Orders:
+      </Text>
       <FlatList
-      showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
         data={orders}
         onRefresh={handleRefresh}
         refreshing={refreshing}

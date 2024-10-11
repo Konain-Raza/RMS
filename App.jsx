@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {ActivityIndicator, Alert, View, useColorScheme} from 'react-native';
+import {Alert, View, Text, useColorScheme} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -15,6 +15,7 @@ import Reservations from './src/screens/Reservations';
 import CustomDrawerContent from './src/components/DrawerHeader';
 import Icon from 'react-native-remix-icon';
 import Dashboard from './src/screens/Dashboard';
+import {initializeNotifications} from './src/utils/NotificationsHelper';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -33,6 +34,54 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  const DrawerList = [
+    {
+      title: 'Orders',
+      icon: 'restaurant-line',
+      screen: Orders,
+    },
+    {
+      title: 'General Settings',
+      icon: 'settings-line',
+      screen: Orders,
+    },
+    {
+      title: 'Styles',
+      icon: 'restaurant-line',
+      screen: Orders,
+    },
+    {
+      title: 'Labels',
+      icon: 'calendar-event-line',
+      screen: Reservations,
+    },
+    {
+      title: 'Timings',
+      icon: 'coupon-line',
+      screen: Coupons,
+    },
+    {
+      title: 'Shipping ',
+      icon: 'restaurant-line',
+      screen: Orders,
+    },
+  
+    {
+      title: 'Notification Settings',
+      icon: 'calendar-event-line',
+      screen: Reservations,
+    },
+    {
+      title: 'Tipping',
+      icon: 'coupon-line',
+      screen: Coupons,
+    },
+    {
+      title: 'Reservations',
+      icon: 'coupon-line',
+      screen: Coupons,
+    },
+  ];
   const DrawerNavigator = () => (
     <Drawer.Navigator
       drawerContent={props => <CustomDrawerContent {...props} />}
@@ -50,72 +99,39 @@ const App = () => {
           fontWeight: 'bold',
         },
       }}>
-      <Drawer.Screen
-        name="Dashboard"
-        component={Dashboard}
-        options={{
-          drawerIcon: ({color, size}) => (
-            <Icon name="dashboard-line" size={size} color={color} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="Orders"
-        component={Orders}
-        options={{
-          drawerIcon: ({color, size}) => (
-            <Icon name="restaurant-line" size={size} color={color} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="Coupons"
-        component={Coupons}
-        options={{
-          drawerIcon: ({color, size}) => (
-            <Icon name="coupon-line" size={size} color={color} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="Reservations"
-        component={Reservations}
-        options={{
-          drawerIcon: ({color, size}) => (
-            <Icon name="table-line" size={size} color={color} />
-          ),
-        }}
-      />
+      {DrawerList.map(item => (
+        <Drawer.Screen
+          key={item.title}
+          name={item.title}ggggggggggggg
+          component={item.screen}
+          options={{
+            drawerIcon: ({color, size}) => (
+              <Icon name={item.icon} size={size} color={color} />
+            ),
+          }}
+        />
+      ))}
     </Drawer.Navigator>
   );
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchData = async () => {
       try {
-        console.log('fetchOrders');
-
         await getOrders();
-        console.log('fetchCoupons');
-
         await getCoupons();
-        console.log('fetchDashboard');
-
-        await getDashboardData();
-    console.log('reserva');
-
         await getReservations();
       } catch (error) {
         Alert.alert('Failed to Load Data', error.message);
       }
     };
 
-    const checkUser = async () => {
+    const checkUser = async () => { 
       try {
         const data = await AsyncStorage.getItem('userData');
         if (data) {
           const parsedUser = JSON.parse(data);
           setUser(parsedUser);
-          await fetchOrders();
+          await fetchData();
           setIsAuthenticated(true);
         }
       } catch (error) {
@@ -126,21 +142,27 @@ const App = () => {
     };
 
     checkUser();
-  }, []);
+
+    initializeNotifications();
+  }, [getCoupons, getOrders, getReservations, setUser]);
 
   if (isLoading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <ActivityIndicator
-          size="large"
-          color={isDarkMode ? '#ffffff' : '#0000ff'}
-        />
+      <View className="flex-1 dark:bg-gray-900 items-center justify-center px-6">
+        <Text className="text-4xl font-extrabold dark:text-white text-blue-600 mb-4">
+          🍽️ Restaurant for WooCommerce 🍽️
+        </Text>
+        <Text className="text-xl dark:text-gray-300 mb-6 text-center">
+          Serving you the freshest data, right from the kitchen! 🔄
+        </Text>
+        <Text className="text-lg dark:text-gray-200 text-center">
+          Just a moment... We're prepping everything for your feast! 🍲
+        </Text>
+        <View className="absolute bottom-10">
+          <Text className="text-sm dark:text-gray-500 text-gray-400">
+            If it takes too long, grab a snack and relax! 🥨
+          </Text>
+        </View>
       </View>
     );
   }
